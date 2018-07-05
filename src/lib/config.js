@@ -11,7 +11,11 @@ const defaultConfig = {
 	forceLocale: null,
 	gdprApplies: true,
 	allowedVendorIds: null,
-	theme: {}
+	theme: {},
+	bannerMessage: `We use cookies to collect and analyse information on site performance and usage, and to
+								enhance and customise content and advertisements. By Clicking "OK" or by clicking into
+								any content on this site, you agree to allow cookies to be placed. To find out more or
+								to change your cookie settings, visit the cookies section of our privacy policy.`,
 };
 
 class Config {

@@ -104,7 +104,7 @@ export default class Vendors extends Component {
 									<td>
 										<div class={style.vendorName}>
 											{name}
-											<a href={policyUrl} class={style.policy} style={{ color: textLinkColor}} target='_blank'><ExternalLinkIcon color={textLinkColor} /></a>
+											<a href={policyUrl} class={style.policy} style={{ color: textLinkColor, fill: primaryColor}} target='_blank'><ExternalLinkIcon color={textLinkColor} /></a>
 										</div>
 									</td>
 									<td class={style.allowColumn}>

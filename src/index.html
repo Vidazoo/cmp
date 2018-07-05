@@ -3,6 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>GDPR Documentation</title>
+	<link href="//fonts.googleapis.com/css?family=Lato" rel="stylesheet">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimal-ui">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<script>
@@ -35,7 +36,16 @@
 				};
 				cmp.config = {
 					customPurposeListLocation: 'docs/purposes.json',
-					globalConsentLocation: 'docs/portal.html'
+					globalConsentLocation: 'docs/portal.html',
+					theme: {
+						primaryColor: '#c9a2ac',
+						secondaryColor: '#00051c',
+						fontFamily: 'Lato',
+					},
+					bannerMessage: `We use cookies to collect and analyse information on site performance and usage, and to
+								enhance and customise content and advertisements. By Clicking "OK" or by clicking into
+								any content on this site, you agree to allow cookies to be placed. To find out more or
+								to change your cookie settings, visit the <a href="/cookies-policy/">cookies</a> section of our <a href="/privacy-policy/">privacy policy</a>.`
 				};
 				return cmp;
 			}());

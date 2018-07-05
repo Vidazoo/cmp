@@ -3,7 +3,7 @@ import Promise from 'promise-polyfill';
 import Store from './store';
 import Cmp, { CMP_GLOBAL_NAME } from './cmp';
 import { readVendorConsentCookie, readPublisherConsentCookie } from './cookie/cookie';
-import { fetchPubVendorList, fetchGlobalVendorList, fetchPurposeList } from './vendor';
+import { fetchGlobalVendorList, fetchPurposeList } from './vendor';
 import log from './log';
 import pack from '../../package.json';
 import config from './config';
@@ -20,13 +20,13 @@ export function init(configUpdates) {
 	// Fetch the current vendor consent before initializing
 	return Promise.all([
 		readVendorConsentCookie(),
-		fetchPubVendorList()
+		// fetchPubVendorList()
 	])
 		.then(([vendorConsentData, pubVendorsList]) => {
 			const {vendors} = pubVendorsList || {};
 
 			// Check config for allowedVendorIds then the pubVendorList
-			const {allowedVendorIds: configVendorIds} = config;
+			const {allowedVendorIds: configVendorIds, bannerMessage} = config;
 			const allowedVendorIds = configVendorIds instanceof Array && configVendorIds.length ? configVendorIds :
 				vendors && vendors.map(vendor => vendor.id);
 
@@ -38,7 +38,8 @@ export function init(configUpdates) {
 				vendorConsentData,
 				publisherConsentData: readPublisherConsentCookie(),
 				pubVendorsList,
-				allowedVendorIds
+				allowedVendorIds,
+				bannerMessage
 			});
 
 			// Pull queued command from __cmp stub

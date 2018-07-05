@@ -29,7 +29,8 @@ export default class Store {
 		vendorList,
 		customPurposeList,
 		pubVendorsList,
-		allowedVendorIds
+		allowedVendorIds,
+					bannerMessage
 	} = {}) {
 		// Keep track of data that has already been persisted
 		this.persistedVendorConsentData = copyData(vendorConsentData);
@@ -62,6 +63,7 @@ export default class Store {
 		this.allowedVendorIds = new Set(allowedVendorIds);
 		this.isConsentToolShowing = false;
 		this.isBannerShowing = false;
+		this.bannerMessage = bannerMessage;
 
 		this.updateVendorList(vendorList);
 		this.updateCustomPurposeList(customPurposeList);
