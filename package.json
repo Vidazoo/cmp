@@ -7,6 +7,7 @@
     "start": "serve build -s -c 1",
     "prestart": "npm run build",
     "build": "cross-env NODE_ENV=production webpack --progress",
+    "deploy": "cross-env NODE_ENV=production vault-env webpack --progress",
     "prebuild": "npm run clean && mkdirp build",
     "test": "npm run -s lint && jest --coverage",
     "test:watch": "npm run -s test -- --watch",
@@ -86,7 +87,9 @@
     "style-loader": "^0.20.1",
     "url-loader": "^0.6.1",
     "webpack": "^3.0.0",
-    "webpack-dev-server": "^2.4.4"
+    "webpack-dev-server": "^2.4.4",
+    "webpack-highwinds-purge-plugin": "^0.0.3",
+    "webpack-s3-plugin": "^1.0.0-rc.0"
   },
   "dependencies": {
     "classnames": "^2.2.5",

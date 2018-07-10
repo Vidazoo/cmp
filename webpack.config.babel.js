@@ -1,6 +1,8 @@
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
+import PurgeCDNPlugin from 'webpack-highwinds-purge-plugin';
+import S3Plugin from 'webpack-s3-plugin';
 import autoprefixer from 'autoprefixer';
 import path from 'path';
 
@@ -9,34 +11,34 @@ const ENV = process.env.NODE_ENV || 'development';
 const CSS_MAPS = ENV !== 'production';
 
 const uglifyPlugin = new webpack.optimize.UglifyJsPlugin({
-		output: {
-			comments: false
-		},
-		compress: {
-			unsafe_comps: true,
-			properties: true,
-			keep_fargs: false,
-			pure_getters: true,
-			collapse_vars: true,
-			unsafe: true,
-			warnings: false,
-			screw_ie8: true,
-			sequences: true,
-			dead_code: true,
-			drop_debugger: true,
-			comparisons: true,
-			conditionals: true,
-			evaluate: true,
-			booleans: true,
-			loops: true,
-			unused: true,
-			hoist_funs: true,
-			if_return: true,
-			join_vars: true,
-			cascade: true,
-			drop_console: false
-		}
-	});
+	output: {
+		comments: false
+	},
+	compress: {
+		unsafe_comps: true,
+		properties: true,
+		keep_fargs: false,
+		pure_getters: true,
+		collapse_vars: true,
+		unsafe: true,
+		warnings: false,
+		screw_ie8: true,
+		sequences: true,
+		dead_code: true,
+		drop_debugger: true,
+		comparisons: true,
+		conditionals: true,
+		evaluate: true,
+		booleans: true,
+		loops: true,
+		unused: true,
+		hoist_funs: true,
+		if_return: true,
+		join_vars: true,
+		cascade: true,
+		drop_console: false
+	}
+});
 
 const commonConfig = {
 	context: path.resolve(__dirname, 'src'),
@@ -94,13 +96,13 @@ const commonConfig = {
 						options: {
 							sourceMap: CSS_MAPS,
 							plugins: () => {
-								autoprefixer({ browsers: ['last 2 versions'] });
+								autoprefixer({browsers: ['last 2 versions']});
 							}
 						}
 					},
 					{
 						loader: 'less-loader',
-						options: { sourceMap: CSS_MAPS }
+						options: {sourceMap: CSS_MAPS}
 					}
 				]
 			},
@@ -119,7 +121,7 @@ const commonConfig = {
 					},
 					{
 						loader: 'less-loader',
-						options: { sourceMap: CSS_MAPS }
+						options: {sourceMap: CSS_MAPS}
 					}
 				]
 			},
@@ -138,7 +140,7 @@ const commonConfig = {
 		]
 	},
 
-	stats: { colors: true },
+	stats: {colors: true},
 
 	node: {
 		global: true,
@@ -191,48 +193,73 @@ module.exports = [
 				template: 'index.html',
 				chunks: ['cmp']
 			}),
+			new S3Plugin({
+				include: 'cmp.complete.bundle.js',
+				directory: `build`,
+				basePath: `common/cmp/`,
+				s3Options: {
+					accessKeyId: process.env.VAULT_AWS_ACCESS_KEY_ID,
+					secretAccessKey: process.env.VAULT_AWS_SECRET_KEY_ID,
+					region: 'us-east-1',
+				},
+				s3UploadOptions: {
+					Bucket: 'presspo-content',
+					ContentEncoding: 'gzip',
+				}
+			}),
+			new PurgeCDNPlugin([
+					{url: `http://common.forreason.com/cmp/cmp.complete.bundle.js`},
+					{url: `http://common.bakedfacts.com/cmp/cmp.complete.bundle.js`},
+					{url: `http://common.ofendy.com/cmp/cmp.complete.bundle.js`},
+					{url: `http://common.gotedit.com/cmp/cmp.complete.bundle.js`},
+					{url: `http://common.norush.io/cmp/cmp.complete.bundle.js`},
+				], {
+					accountId: process.env.VAULT_HIGHWINDS_ACCOUNT_ID,
+					token: process.env.VAULT_HIGHWINDS_TOKEN
+				}
+			),
 		]).concat(ENV === 'production' ? uglifyPlugin : []),
 	},
 	// Docs config
-	{
-		entry: {
-			'docs': './docs/index.jsx',
-			'iframeExample': './docs/iframe/iframeExample.jsx',
-			'portal': './docs/assets/portal.js'
-		},
-
-		output: {
-			path: path.resolve(__dirname, 'build/docs'),
-			publicPath: './',
-			filename: '[name].bundle.js'
-		},
-		...commonConfig,
-		plugins: ([
-			new webpack.NoEmitOnErrorsPlugin(),
-			new webpack.DefinePlugin({
-				'process.env.NODE_ENV': JSON.stringify(ENV)
-			}),
-			new webpack.ProvidePlugin({
-				'Promise': 'promise-polyfill'
-			}),
-			new HtmlWebpackPlugin({
-				filename: 'index.html',
-				template: 'docs/index.html',
-				chunks: ['docs']
-			}),
-			new HtmlWebpackPlugin({
-				filename: 'iframeExample.html',
-				template: './docs/iframe/iframeExample.html',
-				chunks: ['iframeExample']
-			}),
-			new HtmlWebpackPlugin({
-				filename: 'portal.html',
-				template: './docs/assets/portal.html',
-				chunks: ['portal']
-			}),
-			new CopyWebpackPlugin([
-				{ from: 'docs/assets', to: '.' }
-			])
-		]).concat(ENV === 'production' ? uglifyPlugin : []),
-	}
+	// {
+	// 	entry: {
+	// 		'docs': './docs/index.jsx',
+	// 		'iframeExample': './docs/iframe/iframeExample.jsx',
+	// 		'portal': './docs/assets/portal.js'
+	// 	},
+	//
+	// 	output: {
+	// 		path: path.resolve(__dirname, 'build/docs'),
+	// 		publicPath: './',
+	// 		filename: '[name].bundle.js'
+	// 	},
+	// 	...commonConfig,
+	// 	plugins: ([
+	// 		new webpack.NoEmitOnErrorsPlugin(),
+	// 		new webpack.DefinePlugin({
+	// 			'process.env.NODE_ENV': JSON.stringify(ENV)
+	// 		}),
+	// 		new webpack.ProvidePlugin({
+	// 			'Promise': 'promise-polyfill'
+	// 		}),
+	// 		new HtmlWebpackPlugin({
+	// 			filename: 'index.html',
+	// 			template: 'docs/index.html',
+	// 			chunks: ['docs']
+	// 		}),
+	// 		new HtmlWebpackPlugin({
+	// 			filename: 'iframeExample.html',
+	// 			template: './docs/iframe/iframeExample.html',
+	// 			chunks: ['iframeExample']
+	// 		}),
+	// 		new HtmlWebpackPlugin({
+	// 			filename: 'portal.html',
+	// 			template: './docs/assets/portal.html',
+	// 			chunks: ['portal']
+	// 		}),
+	// 		new CopyWebpackPlugin([
+	// 			{from: 'docs/assets', to: '.'}
+	// 		])
+	// 	]).concat(ENV === 'production' ? uglifyPlugin : []),
+	// }
 ];
