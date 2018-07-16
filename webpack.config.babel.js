@@ -166,6 +166,35 @@ const commonConfig = {
 	}
 };
 
+const prodPlugins = [
+	new S3Plugin({
+		include: 'cmp.complete.bundle.js',
+		directory: `build`,
+		basePath: `common/cmp/`,
+		s3Options: {
+			accessKeyId: process.env.VAULT_AWS_ACCESS_KEY_ID,
+			secretAccessKey: process.env.VAULT_AWS_SECRET_KEY_ID,
+			region: 'us-east-1',
+		},
+		s3UploadOptions: {
+			Bucket: 'presspo-content',
+			ContentEncoding: 'gzip',
+		}
+	}),
+	new PurgeCDNPlugin([
+			{url: `http://common.forreason.com/cmp/cmp.complete.bundle.js`},
+			{url: `http://common.bakedfacts.com/cmp/cmp.complete.bundle.js`},
+			{url: `http://common.ofendy.com/cmp/cmp.complete.bundle.js`},
+			{url: `http://common.gotedit.com/cmp/cmp.complete.bundle.js`},
+			{url: `http://common.norush.io/cmp/cmp.complete.bundle.js`},
+		], {
+			accountId: process.env.VAULT_HIGHWINDS_ACCOUNT_ID,
+			token: process.env.VAULT_HIGHWINDS_TOKEN
+		}
+	),
+	uglifyPlugin,
+];
+
 module.exports = [
 	// CMP config
 	{
@@ -193,32 +222,8 @@ module.exports = [
 				template: 'index.html',
 				chunks: ['cmp']
 			}),
-			new S3Plugin({
-				include: 'cmp.complete.bundle.js',
-				directory: `build`,
-				basePath: `common/cmp/`,
-				s3Options: {
-					accessKeyId: process.env.VAULT_AWS_ACCESS_KEY_ID,
-					secretAccessKey: process.env.VAULT_AWS_SECRET_KEY_ID,
-					region: 'us-east-1',
-				},
-				s3UploadOptions: {
-					Bucket: 'presspo-content',
-					ContentEncoding: 'gzip',
-				}
-			}),
-			new PurgeCDNPlugin([
-					{url: `http://common.forreason.com/cmp/cmp.complete.bundle.js`},
-					{url: `http://common.bakedfacts.com/cmp/cmp.complete.bundle.js`},
-					{url: `http://common.ofendy.com/cmp/cmp.complete.bundle.js`},
-					{url: `http://common.gotedit.com/cmp/cmp.complete.bundle.js`},
-					{url: `http://common.norush.io/cmp/cmp.complete.bundle.js`},
-				], {
-					accountId: process.env.VAULT_HIGHWINDS_ACCOUNT_ID,
-					token: process.env.VAULT_HIGHWINDS_TOKEN
-				}
-			),
-		]).concat(ENV === 'production' ? uglifyPlugin : []),
+
+		]).concat(ENV === 'production' ? prodPlugins : []),
 	},
 	// Docs config
 	// {
