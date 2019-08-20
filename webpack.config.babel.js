@@ -4,6 +4,7 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 import PurgeCDNPlugin from 'webpack-highwinds-purge-plugin';
 import S3Plugin from 'webpack-s3-plugin';
 import autoprefixer from 'autoprefixer';
+import CompressPlugin from "compression-webpack-plugin";
 import path from 'path';
 
 const ENV = process.env.NODE_ENV || 'development';
@@ -140,7 +141,7 @@ const commonConfig = {
 		]
 	},
 
-	stats: {colors: true},
+	stats: "verbose",
 
 	node: {
 		global: true,
@@ -167,8 +168,11 @@ const commonConfig = {
 };
 
 const prodPlugins = [
+	new CompressPlugin({
+		include: "cmp.bundle.js"
+	}),
 	new S3Plugin({
-		include: 'cmp.complete.bundle.js',
+		include: 'cmp.complete.bundle.js.gz',
 		directory: `build`,
 		basePath: `common/cmp/`,
 		s3Options: {
@@ -182,11 +186,11 @@ const prodPlugins = [
 		}
 	}),
 	new PurgeCDNPlugin([
-			{url: `http://common.forreason.com/cmp/cmp.complete.bundle.js`},
-			{url: `http://common.bakedfacts.com/cmp/cmp.complete.bundle.js`},
-			{url: `http://common.ofendy.com/cmp/cmp.complete.bundle.js`},
-			{url: `http://common.gotedit.com/cmp/cmp.complete.bundle.js`},
-			{url: `http://common.norush.io/cmp/cmp.complete.bundle.js`},
+			{url: `http://common.forreason.com/cmp/cmp.complete.bundle.js.gz`},
+			{url: `http://common.bakedfacts.com/cmp/cmp.complete.bundle.js.gz`},
+			{url: `http://common.ofendy.com/cmp/cmp.complete.bundle.js.gz`},
+			{url: `http://common.gotedit.com/cmp/cmp.complete.bundle.js.gz`},
+			{url: `http://common.norush.io/cmp/cmp.complete.bundle.js.gz`},
 		], {
 			accountId: process.env.VAULT_HIGHWINDS_ACCOUNT_ID,
 			token: process.env.VAULT_HIGHWINDS_TOKEN
